@@ -38,10 +38,10 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            echo "cleaning the workspace after the build"
-            //deleteDir()
-        }
-    }
+    // post {
+    //     always {
+    //         echo "cleaning the workspace after the build"
+    //         //deleteDir()
+    //     }
+    // }
 }
