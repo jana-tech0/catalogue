@@ -22,11 +22,12 @@ pipeline {
         //     steps {
         //         sh 'sonar-scanner'
         //     }
-        // }
+        //}
 
         stage('build') {
             steps {
-                echo "build is done here"
+               sh 'ls -ltr'
+               sh 'zip -r ./* --exclude=.git'
             }
         }
 
@@ -40,7 +41,7 @@ pipeline {
     post {
         always {
             echo "cleaning the workspace after the build"
-            deleteDir()
+            //deleteDir()
         }
     }
 }
