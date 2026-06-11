@@ -17,19 +17,20 @@ pipeline {
                 echo "unit testing is done here"
             }
         }
-        
+
         // stage('sonar analysis') {
         //     steps {
         //         sh 'sonar-scanner'
         //     }
         // }
 
-        stages('build') {
+        stage('build') {
             steps {
                 echo "build is done here"
             }
         }
-        stages('deploy') {
+
+        stage('deploy') {
             steps {
                 echo "deploy is done here"
             }
@@ -38,7 +39,7 @@ pipeline {
 
     post {
         always {
-            echo "clearning the workspace after the build"
+            echo "cleaning the workspace after the build"
             deleteDir()
         }
     }
