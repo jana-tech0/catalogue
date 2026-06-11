@@ -18,10 +18,28 @@ pipeline {
             }
         }
         
-        stage('sonar analysis') {
+        // stage('sonar analysis') {
+        //     steps {
+        //         sh 'sonar-scanner'
+        //     }
+        // }
+
+        stages('build') {
             steps {
-                sh 'sonar-scanner'
+                echo "build is done here"
             }
+        }
+        stages('deploy') {
+            steps {
+                echo "deploy is done here"
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "clearning the workspace after the build"
+            deleteDir()
         }
     }
 }
