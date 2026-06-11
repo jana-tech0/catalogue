@@ -27,7 +27,7 @@ pipeline {
         stage('build') {
            steps {
                sh 'ls -ltr'
-               sh 'zip -r ./* --exclude=.git --exclude=.zip'
+               sh 'zip -r catalogue.zip . -x "*.git*" -x "*.zip"'
             }
         }
 
