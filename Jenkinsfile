@@ -27,7 +27,7 @@ pipeline {
         stage('build') {
            steps {
                sh 'ls -ltr'
-                sh 'zip -r catalogue.zip . -x "*.git*"'
+               sh 'zip -r ./* --exclude=.git --exclude=.zip'
             }
         }
 
@@ -38,10 +38,10 @@ pipeline {
         }
     }
 
-    // post {
-    //     always {
-    //         echo "cleaning the workspace after the build"
-    //         //deleteDir()
-    //     }
-    // }
+     post {
+        always {
+            echo "cleaning the workspace after the build"
+            deleteDir()
+         }
+    }
 }
