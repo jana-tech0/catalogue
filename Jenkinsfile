@@ -68,7 +68,7 @@ pipeline {
                     groupId: 'com.roboshop',
                     version: "${env.packageVersion}",
                     repository: 'catalogue',
-                    credentialsId: 'nexus-auth',
+                    credentialsId: 'nexus',
                     artifacts: [
                         [
                             artifactId: 'catalogue',
