@@ -14,12 +14,12 @@ pipeline {
         stage('Get Version') {
             steps {
                 script {
-                    def packageJson = readJSON file: 'package.json'
-                    env.packageVersion = packageJson.version
+                   env.packageVersion = sh(
+                    script: "node -p \"require('./package.json').version\"",
+                     returnStdout: true
+                    ).trim()
 
-                    echo "================================="
-                    echo "Package Version: ${env.packageVersion}"
-                    echo "================================="
+                     echo "Package Version: ${env.packageVersion}"
                 }
             }
         }
