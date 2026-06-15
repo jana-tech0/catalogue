@@ -1,95 +1,63 @@
 pipeline {
-    agent {
-        node {
-            label 'agent-1'
-        }
-    }
-
+    agent { node { label 'agent-1' } }
     environment {
         packageVersion = ''
     }
-
     stages {
-
-        stage('Get Version') {
+        stage('Get version') {
             steps {
                 script {
                     def packageJson = readJSON(file: 'package.json')
                     env.packageVersion = packageJson.version
-                    echo "Package Version: ${env.packageVersion}"
+                    echo "version: ${env.packageVersion}"
                 }
             }
         }
-
-        stage('Install Dependencies') {
+        stage('Install dependencies') {
             steps {
                 sh 'npm install'
             }
         }
-
-        stage('Unit Test') {
+        stage('Unit test') {
             steps {
-                echo "Unit testing is done here"
+                echo "unit testing is done here"
             }
         }
-
         stage('Sonar Scan') {
             steps {
-                echo "Sonar Scan Done"
+                echo "Sonar scan done"
             }
         }
-
         stage('Build') {
             steps {
                 sh 'ls -ltr'
-                sh 'zip -r catalogue.zip . -x "*.git*" -x "*.zip"'
+                sh 'zip -r catalogue.zip ./* --exclude=.git --exclude=.zip'
             }
         }
-
         stage('SAST') {
             steps {
-                echo "SAST Scan Done"
-                // This should now show the correct version
-                echo "Package Version: ${env.packageVersion}"
+                echo "SAST Done"
+                echo "package version: ${env.packageVersion}"
             }
         }
-
-        stage('Verify Artifact') {
-            steps {
-                sh 'ls -lh catalogue.zip'
-            }
-        }
-
         stage('Publish Artifact') {
             steps {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '13.48.29.89:8081',
+                    nexusUrl: '13.48.29.89:8081/',
                     groupId: 'com.roboshop',
                     version: "${env.packageVersion}",
                     repository: 'catalogue',
                     credentialsId: 'nexus',
                     artifacts: [
-                        [
-                            artifactId: 'catalogue',
-                            classifier: '',
-                            file: 'catalogue.zip',
-                            type: 'zip'
-                        ]
+                        [artifactId: 'catalogue',
+                        classifier: '',
+                        file: 'catalogue.zip',
+                        type: 'zip']
                     ]
                 )
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline completed successfully'
-        }
-
-        failure {
-            echo 'Pipeline failed'
         }
     }
 }
