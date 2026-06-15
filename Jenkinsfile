@@ -49,6 +49,7 @@ pipeline {
         stage('SAST') {
             steps {
                 echo "SAST Scan Done"
+                // This should now show the correct version
                 echo "Package Version: ${env.packageVersion}"
             }
         }
