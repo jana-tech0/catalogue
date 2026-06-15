@@ -12,17 +12,24 @@ pipeline {
     stages {
 
         stage('Get Version') {
-            steps {
-                script {
-                   env.packageVersion = sh(
-                    script: "node -p \"require('./package.json').version\"",
-                     returnStdout: true
-                    ).trim()
+    steps {
+        sh 'pwd'
+        sh 'cat package.json'
 
-                     echo "Package Version: ${env.packageVersion}"
-                }
-            }
+        script {
+            def version = sh(
+                script: """node -p "require('./package.json').version" """,
+                returnStdout: true
+            ).trim()
+
+            echo "RAW VERSION = ${version}"
+
+            env.packageVersion = version
+
+            echo "Package Version = ${env.packageVersion}"
         }
+    }
+}
 
         stage('Install Dependencies') {
             steps {
