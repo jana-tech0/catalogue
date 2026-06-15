@@ -1,63 +1,104 @@
 pipeline {
-    agent { node { label 'agent-1' } }
+    agent {
+        node {
+            label 'agent-1'
+        }
+    }
+
     environment {
         packageVersion = ''
     }
+
     stages {
-        stage('Get version') {
+
+        stage('Get Version') {
             steps {
                 script {
-                    def packageJson = readJSON(file: 'package.json')
+                    def packageJson = readJSON file: 'package.json'
                     env.packageVersion = packageJson.version
-                    echo "version: ${env.packageVersion}"
+
+                    echo "================================="
+                    echo "Package Version: ${env.packageVersion}"
+                    echo "================================="
                 }
             }
         }
-        stage('Install dependencies') {
+
+        stage('Install Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
-        stage('Unit test') {
+
+        stage('Unit Test') {
             steps {
-                echo "unit testing is done here"
+                echo 'Unit Testing Completed'
             }
         }
+
         stage('Sonar Scan') {
             steps {
-                echo "Sonar scan done"
+                echo 'Sonar Scan Completed'
             }
         }
+
         stage('Build') {
             steps {
-                sh 'ls -ltr'
-                sh 'zip -r catalogue.zip ./* --exclude=.git --exclude=.zip'
+                sh '''
+                    rm -f catalogue.zip
+                    zip -r catalogue.zip . \
+                    -x "*.git*" \
+                    -x "*.zip" \
+                    -x "node_modules/*"
+                '''
+
+                sh 'ls -lh catalogue.zip'
             }
         }
+
         stage('SAST') {
             steps {
-                echo "SAST Done"
-                echo "package version: ${env.packageVersion}"
+                echo 'SAST Scan Completed'
+                echo "Package Version: ${env.packageVersion}"
             }
         }
+
         stage('Publish Artifact') {
             steps {
+                echo "Uploading catalogue-${env.packageVersion}.zip to Nexus"
+
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '13.48.29.89:8081/',
+                    nexusUrl: '13.48.29.89:8081',
+                    repository: 'catalogue',
                     groupId: 'com.roboshop',
                     version: "${env.packageVersion}",
-                    repository: 'catalogue',
                     credentialsId: 'nexus',
                     artifacts: [
-                        [artifactId: 'catalogue',
-                        classifier: '',
-                        file: 'catalogue.zip',
-                        type: 'zip']
+                        [
+                            artifactId: 'catalogue',
+                            classifier: '',
+                            file: 'catalogue.zip',
+                            type: 'zip'
+                        ]
                     ]
                 )
             }
+        }
+    }
+
+    post {
+        success {
+            echo "Build Successful"
+        }
+
+        failure {
+            echo "Build Failed"
+        }
+
+        always {
+            cleanWs()
         }
     }
 }
