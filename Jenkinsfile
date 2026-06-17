@@ -12,14 +12,22 @@ pipeline {
     stages {
         // Remove the 's' on this line
         stage('Get Version') {
-            steps {
-                script {
-                    def packageJson = readJSON(file: 'package.json')
-                    env.packageVersion = packageJson.version
-                    echo "Version: ${env.packageVersion}"
-                }
+    steps {
+        script {
+            // List files to verify package.json exists
+            sh 'ls -la'
+            sh 'cat package.json'  // This will show the content
+            
+            if (fileExists('package.json')) {
+                def packageJson = readJSON(file: 'package.json')
+                env.packageVersion = packageJson.version
+                echo "✅ Version: ${env.packageVersion}"
+            } else {
+                error "❌ package.json not found in workspace!"
             }
         }
+    }
+}
 
         stage('Install Dependencies') {
             steps {
