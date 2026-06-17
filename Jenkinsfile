@@ -10,13 +10,12 @@ pipeline {
     }
 
     stages {
-
-        s
+        // Remove the 's' on this line
         stage('Get Version') {
             steps {
                 script {
                     def packageJson = readJSON(file: 'package.json')
-                    env.packageVersion = packageJson.version  // Key change here
+                    env.packageVersion = packageJson.version
                     echo "Version: ${env.packageVersion}"
                 }
             }
@@ -75,12 +74,13 @@ pipeline {
                 )
             }
         }
+        
         stage('Deploy') {
             steps {
                 script {
                     echo "Deployment"
                     def params = [
-                        string(name: 'version', value: "${env.packageVersion}")  // FIXED: Added missing closing quote
+                        string(name: 'version', value: "${env.packageVersion}")
                     ]
                     build job: "../catalogue-deploy",
                           wait: true,
