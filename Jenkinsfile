@@ -50,7 +50,7 @@ pipeline {
                     protocol: 'http',
                     nexusUrl: '51.20.250.125:8081',
                     groupId: 'com.roboshop',
-                    version: "${env.packageVersion}",
+                    version: "${packageVersion}",
                     repository: 'catalogue',
                     credentialsId: 'nexus',
                     artifacts: [
