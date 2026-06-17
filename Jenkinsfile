@@ -5,29 +5,16 @@ pipeline {
         }
     }
 
-    environment {
-        packageVersion = ''
-    }
-
     stages {
-        // Remove the 's' on this line
         stage('Get Version') {
-    steps {
-        script {
-            // List files to verify package.json exists
-            sh 'ls -la'
-            sh 'cat package.json'  // This will show the content
-            
-            if (fileExists('package.json')) {
-                def packageJson = readJSON(file: 'package.json')
-                env.packageVersion = packageJson.version
-                echo "✅ Version: ${env.packageVersion}"
-            } else {
-                error "❌ package.json not found in workspace!"
+            steps {
+                script {
+                    def packageJson = readJSON(file: 'package.json')
+                    env.packageVersion = packageJson.version
+                    echo "Version: ${env.packageVersion}"
+                }
             }
         }
-    }
-}
 
         stage('Install Dependencies') {
             steps {
@@ -49,7 +36,6 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'ls -ltr'
                 sh 'zip -r catalogue.zip ./* --exclude=.git --exclude=.zip'
             }
         }
@@ -86,13 +72,11 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    echo "Deployment"
-                    def params = [
-                        string(name: 'version', value: "${env.packageVersion}")
-                    ]
                     build job: "../catalogue-deploy",
                           wait: true,
-                          parameters: params
+                          parameters: [
+                              string(name: 'version', value: "${env.packageVersion}")
+                          ]
                 }
             }
         }
@@ -100,7 +84,7 @@ pipeline {
 
     post {
         always {
-            echo 'Cleaning workspace'
+            cleanWs()
         }
     }
 }
