@@ -11,13 +11,13 @@ pipeline {
 
     stages {
 
+        s
         stage('Get Version') {
             steps {
                 script {
                     def packageJson = readJSON(file: 'package.json')
-                    packageVersion = packageJson.version
-
-                    echo "Version: ${packageVersion}"
+                    env.packageVersion = packageJson.version  // Key change here
+                    echo "Version: ${env.packageVersion}"
                 }
             }
         }
@@ -50,7 +50,7 @@ pipeline {
         stage('SAST') {
             steps {
                 echo "SAST Completed"
-                echo "Package Version: ${packageVersion}"
+                echo "Package Version: ${env.packageVersion}"
             }
         }
 
@@ -59,9 +59,9 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '51.20.68.163:8081',
+                    nexusUrl: '51.20.250.125:8081',
                     groupId: 'com.roboshop',
-                    version: "125",
+                    version: "${env.packageVersion}",
                     repository: 'catalogue',
                     credentialsId: 'nexus',
                     artifacts: [
@@ -80,7 +80,7 @@ pipeline {
                 script {
                     echo "Deployment"
                     def params = [
-                        string(name: 'version', value: "$packageVersion")
+                        string(name: 'version', value: "${env.packageVersion}")  // FIXED: Added missing closing quote
                     ]
                     build job: "../catalogue-deploy",
                           wait: true,
