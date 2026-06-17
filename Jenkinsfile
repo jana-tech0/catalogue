@@ -9,8 +9,11 @@ pipeline {
         stage('Get Version') {
             steps {
                 script {
-                    def packageJson = readJSON(file: 'package.json')
-                    env.packageVersion = packageJson.version
+                    def gitHash = sh(
+                        script: "git log -1 --format=%h",
+                        returnStdout: true
+                    ).trim()
+                    env.packageVersion = "${env.BUILD_NUMBER}-${gitHash}"
                     echo "Version: ${env.packageVersion}"
                 }
             }
