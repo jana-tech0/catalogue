@@ -1,10 +1,8 @@
 pipeline {
-    agent {
-        node {
-            label 'agent-1'
-        }
+    agent { node { label 'agent-1'} }
+    environment {
+        packageVersion = ''
     }
-
     stages {
         stage('Get Version') {
             steps {
@@ -13,43 +11,38 @@ pipeline {
                         script: "git log -1 --format=%h",
                         returnStdout: true
                     ).trim()
-                    env.packageVersion = "${env.BUILD_NUMBER}-${gitHash}"
-                    echo "Version: ${env.packageVersion}"
+                    packageVersion = "${env.BUILD_NUMBER}-${gitHash}"
+                    echo "version: ${packageVersion}"
                 }
             }
         }
-
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
-
         stage('Unit Test') {
             steps {
-                echo "Unit Testing Completed"
+                echo "unit testing is done here"
             }
         }
-
         stage('Sonar Scan') {
             steps {
-                echo "Sonar Scan Completed"
+                echo "Sonar scan done"
             }
         }
-
         stage('Build') {
             steps {
+                sh 'ls -ltr'
                 sh 'zip -r catalogue.zip ./* --exclude=.git --exclude=.zip'
             }
         }
-
         stage('SAST') {
             steps {
-                echo "SAST Completed"
-                echo "Package Version: ${env.packageVersion}"
+                echo "SAST Done"
+                echo "package version: $packageVersion"
             }
         }
-
         stage('Publish Artifact') {
             steps {
                 nexusArtifactUploader(
@@ -71,23 +64,22 @@ pipeline {
                 )
             }
         }
-
         stage('Deploy') {
             steps {
                 script {
-                    build job: "../catalogue-deploy",
-                          wait: true,
-                          parameters: [
-                              string(name: 'version', value: "${env.packageVersion}")
-                          ]
+                    echo "Deployment"
+                    def params = [
+                        string(name: 'version', value: "$packageVersion")
+                    ]
+                    build job: "../catalogue-deploy", wait: true, parameters: params
                 }
             }
         }
     }
-
     post {
         always {
-            cleanWs()
+            echo 'cleaning up workspace'
+            deleteDir()
         }
     }
 }
